@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Gravações da Barbalho</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0A1828;
+    --bg-panel:#0D1F35;
+    --bg-panel-alt:#112540;
+    --line:#1C3352;
+    --gold:#C9A227;
+    --gold-light:#E2B93B;
+    --text:#F5F1E8;
+    --text-muted:#8FA3BE;
+    --free:#132A45;
+    --danger:#B24C4C;
+    --closed:#0D1826;
+    --green:#3D6B52;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top, rgba(201,162,39,0.08), transparent 55%),
+      var(--bg-deep);
+    color:var(--text);
+    font-family:'Montserrat',sans-serif;
+    min-height:100vh;
+    padding-bottom:80px;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  header{ padding:28px 20px 20px; max-width:640px; margin:0 auto; }
+  .eyebrow{ font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:var(--gold); font-weight:700; margin:0 0 6px; }
+  h1{ font-size:26px; font-weight:800; letter-spacing:-0.01em; margin:0 0 4px; color:var(--text); }
+  .sub{ color:var(--text-muted); font-size:13.5px; margin:0; line-height:1.5; }
+  .rule-note{
+    margin-top:12px; display:flex; align-items:flex-start; gap:8px;
+    background:var(--bg-panel); border:1px solid var(--line); border-left:3px solid var(--gold);
+    border-radius:8px; padding:10px 12px; font-size:12.5px; color:var(--text-muted); line-height:1.5;
+  }
+  .rule-note svg{flex-shrink:0; margin-top:1px; color:var(--gold-light);}
+  .stripes{ height:6px; margin-top:16px; border-radius:3px;
+    background:repeating-linear-gradient(-45deg, var(--gold) 0px, var(--gold) 14px, var(--bg-deep) 14px, var(--bg-deep) 28px);
+    opacity:0.9;
+  }
+
+  main{ max-width:640px; margin:0 auto; padding:8px 20px 0; }
+
+  .toolbar{ display:flex; gap:8px; align-items:center; margin:20px 0 6px; }
+  .status-dot{ width:7px; height:7px; border-radius:50%; background:var(--gold-light);
+    animation:pulse 2.4s infinite; flex-shrink:0; }
+  @keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(226,185,59,0.45);} 70%{box-shadow:0 0 0 7px rgba(226,185,59,0);} 100%{box-shadow:0 0 0 0 rgba(226,185,59,0);} }
+  .updated-text{ font-size:11.5px; color:var(--text-muted); }
+  .btn-icon{ background:transparent; border:1px solid var(--line); color:var(--text-muted); border-radius:8px;
+    width:32px; height:32px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:border-color .15s, color .15s, transform .15s; }
+  .btn-icon:active{transform:scale(0.92);}
+  .btn-icon:hover{border-color:var(--gold); color:var(--gold-light);}
+  .btn-icon.spinning svg{animation:spin .7s linear;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .toolbar-right{ margin-left:auto; display:flex; gap:8px; align-items:center; }
+  .admin-pill{
+    font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; font-weight:700;
+    color:var(--gold-light); background:var(--bg-panel); border:1px solid var(--gold);
+    padding:6px 11px; border-radius:20px; display:flex; align-items:center; gap:6px; cursor:pointer;
+    position:relative;
+  }
+  .badge-count{
+    background:var(--danger); color:#fff; font-size:10px; font-weight:800;
+    min-width:16px; height:16px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+    padding:0 4px; line-height:1;
+  }
+
+  .empty{ text-align:center; padding:60px 20px; color:var(--text-muted); }
+  .empty svg{opacity:0.35; margin-bottom:14px;}
+  .empty p{font-size:14px; line-height:1.6; margin:0;}
+
+  .day-group{margin-bottom:22px;}
+  .day-label{ display:flex; align-items:center; gap:8px; margin:0 0 10px 2px; }
+  .day-label .weekday{ font-size:12px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); }
+  .day-label .date{ font-size:12px; color:var(--text-muted); }
+  .day-label .rel-tag{ font-size:10.5px; color:var(--text-muted); background:var(--bg-panel-alt); padding:2px 8px; border-radius:10px; }
+  .day-label .lock-btn{
+    margin-left:auto; background:transparent; border:1px solid var(--line); color:var(--text-muted);
+    border-radius:7px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .day-label .lock-btn.locked{ border-color:var(--danger); color:#E08A8A; }
+  .day-label .lock-btn:hover{ border-color:var(--gold); color:var(--gold-light); }
+
+  .closed-banner{
+    background:var(--closed); border:1px dashed var(--line); border-radius:12px;
+    padding:16px; display:flex; align-items:center; gap:10px; color:var(--text-muted); font-size:13px;
+  }
+  .closed-banner svg{ flex-shrink:0; opacity:0.6; }
+  .closed-banner + .slot{ margin-top:8px; }
+  .day-past .day-label{ opacity:0.6; }
+  .day-past .closed-banner{ padding:10px 14px; font-size:12px; }
+
+  .slot{ display:flex; align-items:center; gap:14px; background:var(--free); border:1px solid var(--line);
+    border-radius:12px; padding:14px 14px; margin-bottom:8px; cursor:pointer;
+    transition:transform .12s ease, border-color .15s, background .15s; position:relative; overflow:hidden; }
+  .slot:active{transform:scale(0.985);}
+  .slot.free:hover{border-color:var(--gold); background:var(--bg-panel-alt);}
+  .slot.booked{ border-left:4px solid var(--slot-color, var(--gold)); background:var(--bg-panel-alt); }
+  .slot.declined{ opacity:0.6; }
+  .slot-time{ font-family:'JetBrains Mono',monospace; font-weight:600; font-size:16px; letter-spacing:0.02em; color:var(--text); min-width:56px; }
+  .slot-divider{ width:1px; height:28px; background:var(--line); flex-shrink:0; }
+  .slot-info{flex:1; min-width:0;}
+  .slot-status{ font-size:14px; font-weight:600; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .slot.booked .slot-status{ color:var(--text); }
+  .slot-tag{ font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); font-weight:600; display:flex; align-items:center; gap:5px; }
+  .slot.free .slot-tag{ color:var(--gold); }
+  .confirm-badge{ display:inline-flex; align-items:center; gap:3px; }
+  .confirm-badge.yes{ color:#8FD6A8; }
+  .confirm-badge.no{ color:#E0B88F; }
+  .confirm-badge.declined{ color:#E08A8A; }
+  .color-dot{ width:8px; height:8px; border-radius:50%; background:var(--slot-color, var(--gold)); flex-shrink:0; }
+
+  .load-more{ display:none; }
+
+  .overlay{ position:fixed; inset:0; background:rgba(6,12,20,0.72); backdrop-filter:blur(3px);
+    display:flex; align-items:flex-end; justify-content:center; z-index:50; opacity:0; pointer-events:none; transition:opacity .18s ease; }
+  .overlay.show{opacity:1; pointer-events:auto;}
+  @media(min-width:520px){ .overlay{align-items:center;} }
+  .modal{ background:var(--bg-panel); border:1px solid var(--line); border-top:3px solid var(--gold); width:100%;
+    max-width:460px; border-radius:16px 16px 0 0; padding:24px 22px 26px; transform:translateY(24px); transition:transform .18s ease; max-height:88vh; overflow-y:auto; }
+  @media(min-width:520px){ .modal{border-radius:16px;} }
+  .overlay.show .modal{transform:translateY(0);}
+  .modal h2{ font-size:17px; font-weight:700; margin:0 0 4px; }
+  .modal .modal-sub{ font-size:13px; color:var(--text-muted); margin:0 0 18px; line-height:1.5; }
+  .field{margin-bottom:14px;}
+  .field label{ display:block; font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--gold); margin-bottom:6px; }
+  .field input, .field textarea{ width:100%; background:var(--bg-deep); border:1px solid var(--line); color:var(--text);
+    padding:12px 13px; border-radius:9px; font-size:15px; font-family:inherit; resize:vertical; }
+  .field input:focus, .field textarea:focus{outline:none; border-color:var(--gold);}
+  .field-hint{ font-size:11.5px; color:var(--text-muted); margin-top:5px; }
+  .modal-actions{ display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
+  .btn{ flex:1; min-width:120px; padding:13px; border-radius:9px; border:none; font-family:inherit; font-weight:700;
+    font-size:14px; cursor:pointer; transition:opacity .15s, transform .12s; }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{background:var(--gold); color:var(--bg-deep);}
+  .btn-primary:hover{background:var(--gold-light);}
+  .btn-ghost{background:transparent; color:var(--text-muted); border:1px solid var(--line);}
+  .btn-ghost:hover{color:var(--text);}
+  .btn-danger{background:var(--danger); color:var(--text);}
+  .btn-confirm{background:var(--green); color:#D9F2E4;}
+  .btn-confirm:hover{background:#4A7E62;}
+  .btn-whatsapp{background:#2FAE5D; color:#EAFBF0; display:flex; align-items:center; justify-content:center; gap:8px;}
+  .btn-whatsapp:hover{background:#36C468;}
+  .error-msg{color:#E08A8A; font-size:12.5px; margin:-6px 0 12px;}
+  .info-card{ background:var(--bg-deep); border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:14px; }
+  .info-card .row{ display:flex; gap:10px; font-size:13.5px; margin-bottom:8px; align-items:flex-start; }
+  .info-card .row:last-child{margin-bottom:0;}
+  .info-card .row svg{ flex-shrink:0; margin-top:2px; color:var(--gold); }
+  .info-card .row .label{ color:var(--text-muted); font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:2px; }
+  .msg-preview{ background:var(--bg-deep); border:1px dashed var(--line); border-radius:10px; padding:13px; font-size:13px;
+    line-height:1.55; color:var(--text-muted); margin-bottom:14px; white-space:pre-wrap; }
+
+  .checkbox-row{ display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--bg-deep); border:1px solid var(--line); border-radius:9px; padding:12px 14px; margin-bottom:8px; cursor:pointer; }
+  .checkbox-row.active{ border-color:var(--gold); }
+  .checkbox-row .time-label{ font-family:'JetBrains Mono',monospace; font-weight:600; font-size:15px; }
+  .checkbox-row .chk{ width:20px; height:20px; border-radius:5px; border:2px solid var(--line); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .checkbox-row.active .chk{ background:var(--gold); border-color:var(--gold); color:var(--bg-deep); }
+
+  .fade-in{animation:fadeIn .3s ease both;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} }
+
+  .toast{
+    position:fixed; top:16px; left:16px; right:16px; z-index:100;
+    background:var(--danger); color:#fff; padding:14px 16px; border-radius:10px;
+    font-size:13px; line-height:1.5; box-shadow:0 8px 24px rgba(0,0,0,0.4);
+    display:none; max-width:600px; margin:0 auto;
+  }
+  .toast.show{display:block;}
+</style>
+</head>
+<body>
+
+<div class="toast" id="errorToast"></div>
+
+<header>
+  <p class="eyebrow">Barbalho Imóveis · Produção de vídeo</p>
+  <h1>Gravações da Barbalho</h1>
+  <p class="sub">Toque num horário livre para marcar. Toque num horário marcado para ver os detalhes.</p>
+  <div class="rule-note">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+    <span>A agenda mostra a semana inteira (segunda a domingo) e a semana seguinte abre todo domingo. Marcações precisam ser feitas com pelo menos 1 dia de antecedência — não dá pra marcar para hoje.</span>
+  </div>
+  <div class="stripes"></div>
+</header>
+
+<main>
+  <div class="toolbar">
+    <span class="status-dot"></span>
+    <span class="updated-text" id="updatedText">Carregando…</span>
+    <div class="toolbar-right">
+      <button class="btn-icon" id="settingsBtn" title="Horários disponíveis" style="display:none;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </button>
+      <button class="admin-pill" id="adminPill">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <span id="adminPillLabel">Admin</span>
+        <span class="badge-count" id="pendingBadge" style="display:none;">0</span>
+      </button>
+      <button class="btn-icon" id="refreshBtn" title="Atualizar">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="listContainer"></div>
+</main>
+
+<!-- Booking modal (corretor) -->
+<div class="overlay" id="bookOverlay">
+  <div class="modal">
+    <h2>Marcar horário</h2>
+    <p class="modal-sub" id="bookSub"></p>
+    <div class="field">
+      <label>Seu nome</label>
+      <input type="text" id="bookName" placeholder="Ex: Carla Souza" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Endereço da gravação</label>
+      <input type="text" id="bookAddress" placeholder="Rua, número e bairro">
+      <div class="field-hint">Ex: Rua das Palmeiras, 245 - Boa Viagem</div>
+    </div>
+    <div class="field">
+      <label>Seu WhatsApp</label>
+      <input type="tel" id="bookWhats" placeholder="(81) 99999-9999">
+      <div class="field-hint">Usado só para confirmar o agendamento.</div>
+    </div>
+    <p class="error-msg" id="bookError" style="display:none;"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="bookCancel">Cancelar</button>
+      <button class="btn btn-primary" id="bookConfirm">Marcar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail modal (view / admin actions) -->
+<div class="overlay" id="detailOverlay">
+  <div class="modal" id="detailModalBody"></div>
+</div>
+
+<!-- Admin unlock modal -->
+<div class="overlay" id="adminOverlay">
+  <div class="modal">
+    <h2>Área do organizador</h2>
+    <p class="modal-sub">Informe o código de acesso para administrar a agenda.</p>
+    <div class="field">
+      <label>Código de acesso</label>
+      <input type="password" id="adminPin" placeholder="••••" autocomplete="off">
+    </div>
+    <p class="error-msg" id="adminError" style="display:none;">Código incorreto.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="adminCancel">Cancelar</button>
+      <button class="btn btn-primary" id="adminUnlock">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings modal (active time slots) -->
+<div class="overlay" id="settingsOverlay">
+  <div class="modal">
+    <h2>Horários disponíveis</h2>
+    <p class="modal-sub">Escolha quais horários ficam abertos para marcação em todos os dias.</p>
+    <div id="timeCheckboxes"></div>
+    <p class="error-msg" id="settingsError" style="display:none;">Escolha ao menos 1 horário.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="settingsCancel">Fechar</button>
+      <button class="btn btn-primary" id="settingsSave">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const FIREBASE_DB_URL = 'https://barbalho-agenda-default-rtdb.firebaseio.com';
+  const STORAGE_KEY = 'schedule';
+  const ADMIN_PIN = '4040'; // altere aqui antes de compartilhar, se quiser trocar o código
+  const TIME_POOL = ['10:00','11:00','12:00','14:00','15:00','16:00'];
+  const DEFAULT_ACTIVE_TIMES = TIME_POOL.slice();
+  const MAX_SLOTS_PER_DAY = TIME_POOL.length;
+  const MIN_ADVANCE_DAYS = 1;  // não pode marcar no mesmo dia
+  const TIMES_VERSION = 2;     // sobe quando a lista padrão de horários muda (atualiza o que já está salvo no banco)
+
+  const COLOR_PALETTE = [
+    '#E07A5F','#6D9DC5','#81B29A','#C97BB0','#85D2C2',
+    '#B4A0E5','#E58F9D','#A8C25A','#7FB3D5','#D9A05B'
+  ];
+
+  let data = { bookings: [], closedDates: [], activeTimes: DEFAULT_ACTIVE_TIMES.slice(), timesVersion: TIMES_VERSION };
+  let isAdmin = false;
+  let bookingInFlight = false;
+  let pendingSlot = null; // { date, time }
+  let tempSelectedTimes = [];
+
+  const $ = (id) => document.getElementById(id);
+  const listContainer = $('listContainer');
+  const updatedText = $('updatedText');
+
+  const WEEKDAYS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+  const MONTHS = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+  function toDateStr(d){
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  function formatDateLabel(dateStr){
+    const [y,m,d] = dateStr.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    return { weekday: WEEKDAYS[dt.getDay()], date: `${d} ${MONTHS[m-1]}` };
+  }
+  function colorForName(name){
+    let hash = 0;
+    for(let i=0;i<name.length;i++){ hash = (hash * 31 + name.charCodeAt(i)) >>> 0; }
+    return COLOR_PALETTE[hash % COLOR_PALETTE.length];
+  }
+  function findBooking(date, time){
+    return data.bookings.find(b => b.date === date && b.time === time);
+  }
+  function isDateClosed(date){
+    return data.closedDates.includes(date);
+  }
+  function getActiveTimes(){
+    const t = (data.activeTimes && data.activeTimes.length) ? data.activeTimes : DEFAULT_ACTIVE_TIMES;
+    return [...t].sort();
+  }
+  function pendingCount(){
+    // só conta marcações de hoje em diante (marcações antigas sem resposta não ficam no aviso)
+    const todayStr = toDateStr(new Date());
+    return data.bookings.filter(b => b.status === 'pending' && b.date >= todayStr).length;
+  }
+  function toArray(v){
+    if(!v) return [];
+    return Array.isArray(v) ? v : Object.values(v); // o Firebase às vezes devolve lista como objeto
+  }
+  function normalizeData(json){
+    const d = json || {};
+    d.bookings = toArray(d.bookings);
+    d.closedDates = toArray(d.closedDates);
+    d.activeTimes = toArray(d.activeTimes);
+    // os horários mudaram: atualiza o que estava salvo no banco para a nova lista
+    if(d.timesVersion !== TIMES_VERSION || !d.activeTimes.length){
+      d.activeTimes = DEFAULT_ACTIVE_TIMES.slice();
+      d.timesVersion = TIMES_VERSION;
+    }
+    return d;
+  }
+  function addMinutes(time, mins){
+    const [h,m] = time.split(':').map(Number);
+    const total = h*60 + m + mins;
+    const nh = Math.floor(total/60) % 24;
+    const nm = total % 60;
+    return String(nh).padStart(2,'0') + ':' + String(nm).padStart(2,'0');
+  }
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+  function buildWhatsAppLink(phone, message){
+    let digits = (phone || '').replace(/\D/g,'');
+    if(digits.length <= 11) digits = '55' + digits; // assume Brasil se sem DDI
+    return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+  }
+
+  function showError(message){
+    const toast = $('errorToast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showError._t);
+    showError._t = setTimeout(()=> toast.classList.remove('show'), 7000);
+  }
+
+  async function loadData(showSpinner){
+    const btn = $('refreshBtn');
+    if(showSpinner) btn.classList.add('spinning');
+    try{
+      const res = await fetch(`${FIREBASE_DB_URL}/${STORAGE_KEY}.json`);
+      if(!res.ok) throw new Error('fetch-failed');
+      data = normalizeData(await res.json());
+      updatedText.textContent = 'Atualizado agora';
+    }catch(e){
+      data = data && data.bookings ? data : normalizeData(null);
+      updatedText.textContent = 'Sem conexão com o banco de dados';
+      showError('Não foi possível carregar a agenda. Verifique sua conexão com a internet e tente atualizar novamente.');
+    }
+    updatePendingBadge();
+    render();
+    setTimeout(()=>{ btn.classList.remove('spinning'); }, 400);
+  }
+
+  async function saveData(){
+    try{
+      const res = await fetch(`${FIREBASE_DB_URL}/${STORAGE_KEY}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if(!res.ok) throw new Error('save-failed');
+      return true;
+    }catch(e){
+      showError('Não foi possível salvar. Verifique sua conexão com a internet e tente novamente.');
+      return false;
+    }
+  }
+
+  function updatePendingBadge(){
+    const count = pendingCount();
+    const badge = $('pendingBadge');
+    if(count > 0){
+      badge.textContent = count;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  // ---- Semana: segunda a domingo. No domingo a semana seguinte abre. ----
+  function weekDates(today){
+    const dow = today.getDay(); // 0 = domingo
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + (dow === 0 ? 1 : 1 - dow));
+    const days = [];
+    for(let i=0; i<7; i++){
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      days.push(d);
+    }
+    return days;
+  }
+  function daysFromToday(d, today){
+    return Math.round((d - today) / 86400000);
+  }
+  function bookingsOfDay(dateStr){
+    return data.bookings.filter(b => b.date === dateStr).sort((a,b)=> a.time.localeCompare(b.time));
+  }
+  function buildBanner(text){
+    const banner = document.createElement('div');
+    banner.className = 'closed-banner';
+    banner.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"></line></svg><span>${text}</span>`;
+    return banner;
+  }
+  function buildSlotEl(dateStr, time, booking){
+    const el = document.createElement('div');
+    const statusClass = booking ? (booking.status === 'declined' ? 'booked declined' : 'booked') : 'free';
+    el.className = 'slot ' + statusClass;
+    if(booking) el.style.setProperty('--slot-color', colorForName(booking.name));
+
+    if(booking){
+      let badge;
+      if(booking.status === 'confirmed') badge = '<span class="confirm-badge yes">✓ Confirmado</span>';
+      else if(booking.status === 'declined') badge = '<span class="confirm-badge declined">✕ Não confirmado</span>';
+      else badge = '<span class="confirm-badge no">Aguardando confirmação</span>';
+
+      el.innerHTML = `
+        <span class="slot-time mono">${time}</span>
+        <span class="slot-divider"></span>
+        <span class="slot-info">
+          <div class="slot-status">${escapeHtml(booking.name)}</div>
+          <div class="slot-tag"><span class="color-dot"></span>${badge}</div>
+        </span>
+      `;
+    } else {
+      el.innerHTML = `
+        <span class="slot-time mono">${time}</span>
+        <span class="slot-divider"></span>
+        <span class="slot-info">
+          <div class="slot-status">Livre</div>
+          <div class="slot-tag">Toque para marcar · até ${addMinutes(time, 45)}</div>
+        </span>
+      `;
+    }
+
+    el.addEventListener('click', () => {
+      if(booking) openDetail(dateStr, time);
+      else openBooking(dateStr, time);
+    });
+    return el;
+  }
+
+  function render(){
+    listContainer.innerHTML = '';
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const activeTimes = getActiveTimes();
+
+    let days = weekDates(today);
+    // no domingo a semana que passou some; se hoje tiver gravação marcada, continua visível no topo
+    if(!days.some(d => daysFromToday(d, today) === 0) && bookingsOfDay(toDateStr(today)).length){
+      days = [new Date(today), ...days];
+    }
+
+    days.forEach(d => {
+      const diff = daysFromToday(d, today);
+      const dateStr = toDateStr(d);
+      const { weekday, date } = formatDateLabel(dateStr);
+      const closed = isDateClosed(dateStr);
+      const bookable = diff >= MIN_ADVANCE_DAYS;
+      const relTag = diff === 0 ? 'Hoje' : diff === 1 ? 'Amanhã' : diff === 2 ? 'Depois de amanhã' : null;
+
+      const group = document.createElement('div');
+      group.className = 'day-group fade-in' + (bookable ? '' : ' day-past');
+
+      const showLock = isAdmin && bookable;
+      const label = document.createElement('div');
+      label.className = 'day-label';
+      label.innerHTML = `
+        <span class="weekday">${weekday}</span>
+        <span class="date">${date}</span>
+        ${relTag ? `<span class="rel-tag">${relTag}</span>` : ''}
+        ${showLock ? `<button class="lock-btn ${closed ? 'locked' : ''}" data-toggle-close="${dateStr}" title="${closed ? 'Reabrir este dia' : 'Fechar este dia'}">
+          ${closed
+            ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>'
+            : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>'}
+        </button>` : ''}
+      `;
+      group.appendChild(label);
+
+      if(bookable && !closed){
+        // horários abertos + qualquer marcação existente (mesmo se o horário foi desativado depois)
+        const times = [...new Set([...activeTimes, ...bookingsOfDay(dateStr).map(b => b.time)])].sort();
+        times.forEach(time => group.appendChild(buildSlotEl(dateStr, time, findBooking(dateStr, time))));
+      } else {
+        // dia fechado, hoje ou dia que já passou: ninguém marca, mas as marcações existentes continuam visíveis
+        const existing = bookingsOfDay(dateStr);
+        if(closed){
+          group.appendChild(buildBanner('Agenda fechada neste dia — nenhuma gravação disponível.'));
+        } else if(!existing.length){
+          group.appendChild(buildBanner(diff === 0
+            ? 'Hoje não dá para marcar — as marcações precisam de 1 dia de antecedência.'
+            : 'Dia encerrado.'));
+        }
+        existing.forEach(b => group.appendChild(buildSlotEl(dateStr, b.time, b)));
+      }
+
+      listContainer.appendChild(group);
+    });
+
+    if(isAdmin){
+      listContainer.querySelectorAll('[data-toggle-close]').forEach(btn=>{
+        btn.addEventListener('click', async (e)=>{
+          e.stopPropagation();
+          const dateStr = btn.getAttribute('data-toggle-close');
+          if(isDateClosed(dateStr)){
+            data.closedDates = data.closedDates.filter(d => d !== dateStr);
+          } else {
+            data.closedDates.push(dateStr);
+          }
+          await saveData();
+          render();
+        });
+      });
+    }
+  }
+
+  // ---- Booking modal (corretor cria a marcação) ----
+  function openBooking(date, time){
+    pendingSlot = { date, time };
+    const { weekday, date: dLabel } = formatDateLabel(date);
+    $('bookSub').textContent = `${weekday}, ${dLabel} às ${time}`;
+    $('bookName').value = '';
+    $('bookAddress').value = '';
+    $('bookWhats').value = '';
+    $('bookError').style.display = 'none';
+    $('bookOverlay').classList.add('show');
+    setTimeout(()=> $('bookName').focus(), 150);
+  }
+  $('bookCancel').addEventListener('click', ()=> $('bookOverlay').classList.remove('show'));
+  $('bookConfirm').addEventListener('click', async ()=>{
+    if(bookingInFlight) return; // evita marcar duas vezes com toque duplo
+    bookingInFlight = true;
+    $('bookConfirm').disabled = true;
+    try{
+      await submitBooking();
+    } finally {
+      bookingInFlight = false;
+      $('bookConfirm').disabled = false;
+    }
+  });
+
+  async function submitBooking(){
+    const name = $('bookName').value.trim();
+    const address = $('bookAddress').value.trim();
+    const whats = $('bookWhats').value.trim();
+    const showBookError = (msg)=>{ $('bookError').textContent = msg; $('bookError').style.display = 'block'; };
+
+    if(!name || !address || !whats){
+      showBookError('Preencha nome, endereço e WhatsApp para confirmar.');
+      return;
+    }
+    // a página pode ter ficado aberta de um dia pro outro: confere de novo a antecedência
+    if(pendingSlot.date <= toDateStr(new Date())){
+      showBookError('Marcações precisam ser feitas com pelo menos 1 dia de antecedência.');
+      render();
+      return;
+    }
+
+    // busca a versão mais recente antes de gravar, para não sobrescrever marcações de outras pessoas
+    try{
+      const res = await fetch(`${FIREBASE_DB_URL}/${STORAGE_KEY}.json`);
+      if(!res.ok) throw new Error('fetch-failed');
+      data = normalizeData(await res.json());
+    }catch(e){
+      showError('Não foi possível confirmar a disponibilidade do horário. Verifique sua conexão e tente novamente.');
+      return;
+    }
+
+    if(isDateClosed(pendingSlot.date)){
+      showBookError('A agenda foi fechada neste dia.');
+      render();
+      return;
+    }
+    if(findBooking(pendingSlot.date, pendingSlot.time)){
+      showBookError('Esse horário acabou de ser marcado por outra pessoa.');
+      render();
+      return;
+    }
+
+    data.bookings.push({
+      date: pendingSlot.date, time: pendingSlot.time,
+      name, address, whatsapp: whats,
+      status: 'pending', declineReason: ''
+    });
+    const ok = await saveData();
+    if(!ok){
+      data.bookings.pop();
+      return;
+    }
+    updatePendingBadge();
+    $('bookOverlay').classList.remove('show');
+    render();
+  }
+
+  // ---- Detail modal (multi-etapas: status / justificativa / enviar whatsapp) ----
+  function openDetail(date, time){
+    pendingSlot = { date, time };
+    renderDetail('status');
+    $('detailOverlay').classList.add('show');
+  }
+  function closeDetail(){ $('detailOverlay').classList.remove('show'); updatePendingBadge(); render(); }
+
+  function renderDetail(step, extra){
+    const booking = findBooking(pendingSlot.date, pendingSlot.time);
+    if(!booking){ closeDetail(); return; }
+    const { weekday, date: dLabel } = formatDateLabel(pendingSlot.date);
+    const modal = $('detailModalBody');
+
+    const infoCard = `
+      <div class="info-card">
+        <div class="row"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <div><span class="label">Horário</span>${weekday}, ${dLabel} às ${pendingSlot.time}</div></div>
+        <div class="row"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21c0-3.87-3.58-7-8-7s-8 3.13-8 7"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <div><span class="label">Corretor</span>${escapeHtml(booking.name)}</div></div>
+        <div class="row"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <div><span class="label">Endereço</span>${escapeHtml(booking.address)}</div></div>
+        ${isAdmin ? `<div class="row"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.68 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.32 1.85.55 2.81.68A2 2 0 0 1 22 16.92z"></path></svg>
+          <div><span class="label">WhatsApp</span>${escapeHtml(booking.whatsapp)}</div></div>` : ''}
+      </div>
+    `;
+
+    if(step === 'status'){
+      let statusLine, actionsHtml;
+      if(booking.status === 'confirmed'){
+        statusLine = '<p class="modal-sub">✓ Presença confirmada pelo organizador.</p>';
+      } else if(booking.status === 'declined'){
+        statusLine = `<p class="modal-sub">✕ Não confirmado. Motivo enviado ao corretor: "${escapeHtml(booking.declineReason)}"</p>`;
+      } else {
+        statusLine = '<p class="modal-sub">Aguardando confirmação do organizador.</p>';
+      }
+
+      if(isAdmin){
+        actionsHtml = `<div class="modal-actions">`;
+        if(booking.status !== 'confirmed'){
+          actionsHtml += `<button class="btn btn-confirm" id="btnConfirm">✓ Confirmar</button>`;
+        }
+        if(booking.status !== 'declined'){
+          actionsHtml += `<button class="btn btn-danger" id="btnDecline">Não vou poder ir</button>`;
+        }
+        if(booking.status === 'confirmed' || booking.status === 'declined'){
+          actionsHtml += `<button class="btn btn-whatsapp" id="btnResend">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.87.51 3.63 1.4 5.13L2 22l4.99-1.31A9.93 9.93 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.63 0-3.16-.44-4.47-1.21l-.32-.19-3.32.87.89-3.24-.21-.33A7.94 7.94 0 0 1 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"></path></svg>
+            Reenviar no WhatsApp
+          </button>`;
+        }
+        actionsHtml += `<button class="btn btn-danger" id="btnRemove">Remover marcação</button>`;
+        actionsHtml += `<button class="btn btn-ghost" id="btnClose">Fechar</button>`;
+        actionsHtml += `</div>`;
+      } else {
+        actionsHtml = `<div class="modal-actions">
+          <button class="btn btn-ghost" id="btnClose">Fechar</button>
+          <button class="btn btn-danger" id="btnRemoveOwn">Cancelar minha marcação</button>
+        </div>`;
+      }
+
+      modal.innerHTML = `<h2>Horário marcado</h2>${infoCard}${statusLine}${actionsHtml}`;
+
+      $('btnClose') && $('btnClose').addEventListener('click', closeDetail);
+      $('btnRemoveOwn') && $('btnRemoveOwn').addEventListener('click', async ()=>{
+        data.bookings = data.bookings.filter(b => !(b.date === pendingSlot.date && b.time === pendingSlot.time));
+        await saveData();
+        closeDetail();
+      });
+      $('btnRemove') && $('btnRemove').addEventListener('click', async ()=>{
+        data.bookings = data.bookings.filter(b => !(b.date === pendingSlot.date && b.time === pendingSlot.time));
+        await saveData();
+        closeDetail();
+      });
+      $('btnConfirm') && $('btnConfirm').addEventListener('click', async ()=>{
+        booking.status = 'confirmed';
+        await saveData();
+        updatePendingBadge();
+        renderDetail('sent', buildConfirmMessage(booking));
+      });
+      $('btnDecline') && $('btnDecline').addEventListener('click', ()=> renderDetail('declineForm'));
+      $('btnResend') && $('btnResend').addEventListener('click', ()=>{
+        const msg = booking.status === 'confirmed' ? buildConfirmMessage(booking) : buildDeclineMessage(booking);
+        renderDetail('sent', msg);
+      });
+    }
+
+    else if(step === 'declineForm'){
+      modal.innerHTML = `
+        <h2>Não vou poder ir</h2>
+        ${infoCard}
+        <div class="field">
+          <label>Motivo (o corretor vai ler isso)</label>
+          <textarea id="declineReason" rows="3" placeholder="Ex: Tive um imprevisto de agenda na imobiliária e não vou conseguir ir nesse horário."></textarea>
+        </div>
+        <p class="error-msg" id="declineError" style="display:none;">Escreva um motivo antes de continuar.</p>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" id="btnBack">Voltar</button>
+          <button class="btn btn-danger" id="btnDeclineSend">Registrar e preparar mensagem</button>
+        </div>
+      `;
+      $('btnBack').addEventListener('click', ()=> renderDetail('status'));
+      $('btnDeclineSend').addEventListener('click', async ()=>{
+        const reason = $('declineReason').value.trim();
+        if(!reason){ $('declineError').style.display = 'block'; return; }
+        booking.status = 'declined';
+        booking.declineReason = reason;
+        await saveData();
+        updatePendingBadge();
+        renderDetail('sent', buildDeclineMessage(booking));
+      });
+    }
+
+    else if(step === 'sent'){
+      const message = extra;
+      const link = buildWhatsAppLink(booking.whatsapp, message);
+      modal.innerHTML = `
+        <h2>Mensagem pronta</h2>
+        <p class="modal-sub">Confira o texto e toque no botão para abrir o WhatsApp com a mensagem já preenchida.</p>
+        <div class="msg-preview">${escapeHtml(message)}</div>
+        <div class="modal-actions">
+          <a class="btn btn-whatsapp" href="${link}" target="_blank" rel="noopener" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.87.51 3.63 1.4 5.13L2 22l4.99-1.31A9.93 9.93 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.63 0-3.16-.44-4.47-1.21l-.32-.19-3.32.87.89-3.24-.21-.33A7.94 7.94 0 0 1 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"></path></svg>
+            Abrir WhatsApp e enviar
+          </a>
+          <button class="btn btn-ghost" id="btnDone">Concluir</button>
+        </div>
+      `;
+      $('btnDone').addEventListener('click', closeDetail);
+    }
+  }
+
+  function buildConfirmMessage(booking){
+    const { weekday, date: dLabel } = formatDateLabel(booking.date);
+    return `Olá ${booking.name}, tudo certo! Seu agendamento está confirmado para ${weekday}, ${dLabel} às ${booking.time}, no endereço: ${booking.address}. Te espero lá! Qualquer coisa pode me chamar por aqui.`;
+  }
+  function buildDeclineMessage(booking){
+    const { weekday, date: dLabel } = formatDateLabel(booking.date);
+    return `Olá ${booking.name}, infelizmente não vou conseguir realizar a gravação de ${weekday}, ${dLabel} às ${booking.time} no endereço ${booking.address}. Motivo: ${booking.declineReason}. Podemos marcar outro dia ou horário na agenda? Qualquer coisa me chama por aqui.`;
+  }
+
+  // ---- Admin unlock ----
+  function openAdminGate(){
+    $('adminPin').value = '';
+    $('adminError').style.display = 'none';
+    $('adminOverlay').classList.add('show');
+    setTimeout(()=> $('adminPin').focus(), 150);
+  }
+  $('adminPill').addEventListener('click', openAdminGate);
+  $('adminCancel').addEventListener('click', ()=> $('adminOverlay').classList.remove('show'));
+  $('adminUnlock').addEventListener('click', ()=>{
+    if($('adminPin').value === ADMIN_PIN){
+      isAdmin = true;
+      $('adminPillLabel').textContent = 'Admin ativo';
+      $('settingsBtn').style.display = 'flex';
+      $('adminOverlay').classList.remove('show');
+      render();
+    }else{
+      $('adminError').style.display = 'block';
+    }
+  });
+  $('adminPin').addEventListener('keydown', (e)=>{ if(e.key==='Enter') $('adminUnlock').click(); });
+
+  // ---- Settings (horários ativos) ----
+  function renderTimeCheckboxes(){
+    const container = $('timeCheckboxes');
+    container.innerHTML = '';
+    TIME_POOL.forEach(time => {
+      const active = tempSelectedTimes.includes(time);
+      const row = document.createElement('div');
+      row.className = 'checkbox-row' + (active ? ' active' : '');
+      row.innerHTML = `<span class="time-label mono">${time}</span><span class="chk">${active ? '✓' : ''}</span>`;
+      row.addEventListener('click', ()=>{
+        $('settingsError').style.display = 'none';
+        if(tempSelectedTimes.includes(time)){
+          tempSelectedTimes = tempSelectedTimes.filter(t => t !== time);
+        } else {
+          if(tempSelectedTimes.length >= MAX_SLOTS_PER_DAY){
+            $('settingsError').style.display = 'block';
+            return;
+          }
+          tempSelectedTimes.push(time);
+        }
+        renderTimeCheckboxes();
+      });
+      container.appendChild(row);
+    });
+  }
+  $('settingsBtn').addEventListener('click', ()=>{
+    tempSelectedTimes = getActiveTimes().slice();
+    renderTimeCheckboxes();
+    $('settingsOverlay').classList.add('show');
+  });
+  $('settingsCancel').addEventListener('click', ()=> $('settingsOverlay').classList.remove('show'));
+  $('settingsSave').addEventListener('click', async ()=>{
+    if(tempSelectedTimes.length === 0){
+      $('settingsError').textContent = 'Escolha ao menos 1 horário.';
+      $('settingsError').style.display = 'block';
+      return;
+    }
+    data.activeTimes = tempSelectedTimes.slice();
+    await saveData();
+    $('settingsOverlay').classList.remove('show');
+    render();
+  });
+
+  // ---- Refresh ----
+  $('refreshBtn').addEventListener('click', ()=> loadData(true));
+  document.querySelectorAll('.overlay').forEach(ov=>{
+    ov.addEventListener('click', (e)=>{ if(e.target === ov) ov.classList.remove('show'); });
+  });
+
+  loadData(false);
+  setInterval(()=> loadData(false), 7000);
+</script>
+</body>
+</html>
